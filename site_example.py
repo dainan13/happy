@@ -1,3 +1,6 @@
+# -*- coding:utf-8 -*-
+
+import sys
 
 import ewsgi
 import exml
@@ -6,7 +9,7 @@ class SiteExample( ewsgi.WsgiServer ):
     
     def __init__( self ):
         
-        super().__init__()
+        super(SiteExample, self).__init__()
         
         return
         
@@ -45,9 +48,12 @@ class SiteExample( ewsgi.WsgiServer ):
             with h.div_( Class='lo' ).div_( Class="cnt" ):
                 
                 with h.div_( Class="row" ):
-                    h.div_( Class="" ).h3_( style="padding: 10px;") << '欢迎使用HAPPY库'
-                    h.div_ << 'HAPPY 是一个关于使用Python编写可通用于uwsgi和基于Qt的WebEngine的HTML页面编写库。'
-                
+                    h.div_( Class="" ).h3_( style="padding: 10px;") << u'欢迎使用HAPPY库'
+                    h.div_ << u'HAPPY 是一个关于使用Python编写可通用于uwsgi和基于Qt的WebEngine的HTML页面编写库。'
+        
+        if sys.version_info[0] < 3 :
+            return "<!DOCTYPE html>\n" + h.bytes()
+        
         return b"<!DOCTYPE html>\n" + h.bytes()
         
 

@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 import p2x
 
 import urllib
@@ -214,6 +216,10 @@ class WsgiServer(object):
             print('hook exml static root')
             sys.modules['exml'].RbHTML.s_root = self.wsgiconf['var']['static_url']
         
+        self.true_make_session = WsgiServer.make_session
+        if sys.version_info[0] < 3 :
+            self.true_make_session = self.true_make_session.__func__
+        
         return
         
     def __call__( self, environ, start_response ):
@@ -222,7 +228,7 @@ class WsgiServer(object):
         start_response( *resp.headstruct() )
         
         if type(resp.body) == bytes :
-            return [resp.body] 
+            return [resp.body]
         
         return resp.body
     
@@ -319,12 +325,12 @@ class WsgiServer(object):
             
             resp = None
             
-            if self.make_session.__func__ != WsgiServer.make_session :
+            if self.make_session.__func__ != self.true_make_session :
                 
-                if environ.get('HTTP_COOKIE') :
+                if self.environ.get('HTTP_COOKIE') :
                     
                     c = http.cookies.SimpleCookie()
-                    c.load( environ['HTTP_COOKIE'] )
+                    c.load( self.environ['HTTP_COOKIE'] )
                     #c = [ (ci.key, urllib.parse.unquote_plus(ci.value)) for ci in c ]
                     c = [ (ci.key.lower(), ci.value) for ci in c.values() ]
                     c = dict(c)
@@ -339,7 +345,8 @@ class WsgiServer(object):
                 resp = work(**args)
 
         except :
-            #print( sys.exc_info() )
+            import traceback
+            traceback.print_exc()
             return HttpInternalServerError( sys.exc_info() )
         
         if type(resp) == tuple :
@@ -357,9 +364,14 @@ class WsgiServer(object):
     def http_static( self, file_wrapper, filepath ):
         
         fp = open( filepath, 'rb' )
-        mtype = mimetypes.guess_type( filepath )[0]
         
+        mtype = None
         headers = []
+        
+        try :
+            mtype = mimetypes.guess_type( filepath )[0]
+        except :
+            pass
         
         if mtype :
             headers.append( ('Content-Type', mtype) )
