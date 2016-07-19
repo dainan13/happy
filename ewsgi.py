@@ -143,9 +143,9 @@ class HttpXRedirect(HttpResponse):
 
 class HttpInternalServerError(HttpResponse):
     
-    def __init__( self, exc_info ):
+    def __init__( self, exc_info=None ):
+        self.exc_info = sys.exc_info() if exc_info == None else exc_info
         super(HttpInternalServerError, self).__init__( 500, None, [], '' )
-        self.exc_info = exc_info
         return
 
 
@@ -197,12 +197,14 @@ def readvars( conf ):
 
 class WsgiServer(object):
     
-    Response = HttpResponse
-    OK = HttpOK
-    BadRequest = HttpBadRequest
-    NotFound = HttpNotFound
-    Redirect = HttpRedirect
-    InternalServerError = HttpInternalServerError
+    HttpResponse = HttpResponse
+    HttpOK = HttpOK
+    HttpBadRequest = HttpBadRequest
+    HttpNotFound = HttpNotFound
+    HttpRedirect = HttpRedirect
+    HttpInternalServerError = HttpInternalServerError
+    HttpForbidden = HttpForbidden
+    HttpXRedirect = HttpXRedirect
     
     wsgiconf = readconfig()
     var = readvars(wsgiconf)
@@ -352,7 +354,7 @@ class WsgiServer(object):
         if type(resp) == tuple :
             
             if len( resp ) == 2 :
-                resp = HttpOK( resp[0], resp[1] )
+                resp = HttpResponse( resp[0], None, [], resp[1] )
             elif len( resp ) == 3 :
                 resp = HttpResponse( resp[0], None, resp[1], resp[2] )
         

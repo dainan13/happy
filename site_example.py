@@ -56,7 +56,21 @@ class SiteExample( ewsgi.WsgiServer ):
         
         return b"<!DOCTYPE html>\n" + h.bytes()
         
-
+    def url__test403( self ):
+        return 403, "<head><title>Page Forbidden</title></head><body>Opps, You're lost. Access to this page is forbidden. Back to Home</body>"
+        
+    def url__test301( self ):
+        return 301, [("Location","/")], '<head><title>Document Moved</title></head><body><h1>Object Moved</h1></body>'
+    
+    def url__test302( self ):
+        return ewsgi.HttpRedirect( "/" )
+    
+    def url__test500( self ):
+        return self.HttpInternalServerError()
+    
+    
+    
+    
 if __name__.startswith('uwsgi_file_'):
     
     application = SiteExample()
