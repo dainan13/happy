@@ -1,0 +1,12 @@
+version: 1
+
+handlers:
+- url: /js
+  static_dir: s/js
+  
+- url: /css
+  static_dir: s/css
+
+- url: /img
+  static_dir: s/img
+  

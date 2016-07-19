@@ -22,16 +22,15 @@ class QHSiteManager( object ):
     
     @classmethod
     def instance( cls ):
-        print( cls._instance, id(cls._instance) )
         return cls._instance
     
     def regist( self, sitename, cls ):
-        print( '[QH] ewsgi site load:', sitename, id(self) )
+        print( '[QH] ewsgi site load:', sitename )
         self.appCls[sitename] = cls
         return
     
     def newSiteObject( self, sitename ):
-        print( '[QH] ewsgi site new:', sitename, id(self) )
+        print( '[QH] ewsgi site new:', sitename )
         sitecls = self.appCls[sitename]
         siteobj = sitecls()
         siteid = id(siteobj)
@@ -85,6 +84,8 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
     
     def requestStarted( self, request ):
         
+        print( '[QH] >', request.requestUrl().url() )
+        
         netloc = request.requestUrl().host().lower().split('.')
         
 # Constant	Value	Description
@@ -122,7 +123,7 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
         request.destroyed.connect( self.buffer.deleteLater )
         
         resp = site.process( self.wsgiParams( request ) )
-        print( resp.status )
+        print( '[QH] <', resp.status )
         self.wsgiReponseProcess( request, resp )
 
         return
@@ -136,8 +137,19 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
         params['QUERY_STRING'] = url.query()
         params['REQUEST_METHOD'] = request.requestMethod()
         
+        params['wsgi.file_wrapper'] = self.wsgiFileWrapper
+        
         return params
     
+    def wsgiFileWrapper( self, fp ):
+        
+        # QFile当前有些问题
+        #qfile = QFile()
+        #qfile.open( fp.fileno(), QIODevice.ReadOnly )
+        #return qfile
+        
+        return fp.read()
+        
     def wsgiReponseProcess( self, request, resp ):
         
         if resp.status >= 500 :
@@ -164,13 +176,21 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
         contentType = b"text/html" if len(contentType) == 0 else contentType[0]
         
         if type(contentType) == str :
-            contentType.encode('utf-8')
+            contentType = contentType.encode('utf-8')
         
-        self.buffer.open(QIODevice.WriteOnly)
-        self.buffer.write( resp.body )
-        self.buffer.close()
+        if type( resp.body ) == bytes :
+            
+            self.buffer.open(QIODevice.WriteOnly)
+            self.buffer.write( resp.body )
+            self.buffer.close()
         
-        request.reply( contentType, self.buffer )
+            request.reply( contentType, self.buffer )
+        
+        else :
+            
+            self.localfile = resp.body
+            
+            request.reply( contentType, self.localfile )
         
         return
     

@@ -1,0 +1,255 @@
+.lo {
+ position: absolute;
+ 
+ top: 0px;
+ bottom: 0px;
+ 
+ left: 0px;
+ right: 0px;
+ 
+ overflow-y: hidden;
+ overflow-x: hidden;
+}
+
+.lo_top { top: 0px; }
+.lo_bottom { bottom: 0px; }
+.lo_left { left: 0px; }
+.lo_right { right: 0px; }
+.loscroll { overflow: visible; }
+.lo_s { overflow: visible; }
+
+
+
+.w50 { width: 50px; }
+.h50 { height: 50px; }
+
+.lo_top.h50 { bottom: auto !important; }
+.lo_bottom.h50 { top: auto !important; }
+.lo_left.w50 { right: auto !important; }
+.lo_right.w50 { left: auto !important; }
+
+.lo_top.h50 ~ .lo:not(.lo_top) { top: 50px; }
+.lo_bottom.h50 ~ .lo:not(.lo_bottom) { bottom: 50px; }
+.lo_left.w50 ~ .lo:not(.lo_left) { left: 50px; }
+.lo_right.w50 ~ .lo:not(.lo_right) { right: 50px; }
+
+
+
+.w10 { width: 10px; }
+.h10 { height: 10px; }
+
+.lo_top.h10 { bottom: auto !important; }
+.lo_bottom.h10 { top: auto !important; }
+.lo_left.w10 { right: auto !important; }
+.lo_right.w10 { left: auto !important; }
+
+.lo_top.h10 ~ .lo:not(.lo_top) { top: 10px; }
+.lo_bottom.h10 ~ .lo:not(.lo_bottom) { bottom: 10px; }
+.lo_left.w10 ~ .lo:not(.lo_left) { left: 10px; }
+.lo_right.w10 ~ .lo:not(.lo_right) { right: 10px; }
+
+
+
+.w20 { width: 20px; }
+.h20 { height: 20px; }
+
+.lo_top.h20 { bottom: auto !important; }
+.lo_bottom.h20 { top: auto !important; }
+.lo_left.w20 { right: auto !important; }
+.lo_right.w20 { left: auto !important; }
+
+.lo_top.h20 ~ .lo:not(.lo_top) { top: 20px; }
+.lo_bottom.h20 ~ .lo:not(.lo_bottom) { bottom: 20px; }
+.lo_left.w20 ~ .lo:not(.lo_left) { left: 20px; }
+.lo_right.w20 ~ .lo:not(.lo_right) { right: 20px; }
+
+
+
+.w30 { width: 30px; }
+.h30 { height: 30px; }
+
+.lo_top.h30 { bottom: auto !important; }
+.lo_bottom.h30 { top: auto !important; }
+.lo_left.w30 { right: auto !important; }
+.lo_right.w30 { left: auto !important; }
+
+.lo_top.h30 ~ .lo:not(.lo_top) { top: 30px; }
+.lo_bottom.h30 ~ .lo:not(.lo_bottom) { bottom: 30px; }
+.lo_left.w30 ~ .lo:not(.lo_left) { left: 30px; }
+.lo_right.w30 ~ .lo:not(.lo_right) { right: 30px; }
+
+
+
+.w35 { width: 35px; }
+.h35 { height: 35px; }
+
+.lo_top.h35 { bottom: auto !important; }
+.lo_bottom.h35 { top: auto !important; }
+.lo_left.w35 { right: auto !important; }
+.lo_right.w35 { left: auto !important; }
+
+.lo_top.h35 ~ .lo:not(.lo_top) { top: 35px; }
+.lo_bottom.h35 ~ .lo:not(.lo_bottom) { bottom: 35px; }
+.lo_left.w35 ~ .lo:not(.lo_left) { left: 35px; }
+.lo_right.w35 ~ .lo:not(.lo_right) { right: 35px; }
+
+
+
+.w40 { width: 40px; }
+.h40 { height: 40px; }
+
+.lo_top.h40 { bottom: auto !important; }
+.lo_bottom.h40 { top: auto !important; }
+.lo_left.w40 { right: auto !important; }
+.lo_right.w40 { left: auto !important; }
+
+.lo_top.h40 ~ .lo:not(.lo_top) { top: 40px; }
+.lo_bottom.h40 ~ .lo:not(.lo_bottom) { bottom: 40px; }
+.lo_left.w40 ~ .lo:not(.lo_left) { left: 40px; }
+.lo_right.w40 ~ .lo:not(.lo_right) { right: 40px; }
+
+
+.w70 { width: 70px; }
+.h70 { height: 70px; }
+
+.lo_top.h70 { bottom: auto !important; }
+.lo_bottom.h70 { top: auto !important; }
+.lo_left.w70 { right: auto !important; }
+.lo_right.w70 { left: auto !important; }
+
+.lo_top.h70 ~ .lo:not(.lo_top) { top: 70px; }
+.lo_bottom.h70 ~ .lo:not(.lo_bottom) { bottom: 70px; }
+.lo_left.w70 ~ .lo:not(.lo_left) { left: 70px; }
+.lo_right.w70 ~ .lo:not(.lo_right) { right: 70px; }
+
+
+.w100 { width: 100px; }
+.h100 { height: 100px; }
+
+.lo_top.h100 { bottom: auto !important; }
+.lo_bottom.h100 { top: auto !important; }
+.lo_left.w100 { right: auto !important; }
+.lo_right.w100 { left: auto !important; }
+
+.lo_top.h100 ~ .lo:not(.lo_top) { top: 100px; }
+.lo_bottom.h100 ~ .lo:not(.lo_bottom) { bottom: 100px; }
+.lo_left.w100 ~ .lo:not(.lo_left) { left: 100px; }
+.lo_right.w100 ~ .lo:not(.lo_right) { right: 100px; }
+
+
+.w150 { width: 150px; }
+.h150 { height: 150px; }
+
+.lo_top.h150 { bottom: auto !important; }
+.lo_bottom.h150 { top: auto !important; }
+.lo_left.w150 { right: auto !important; }
+.lo_right.w150 { left: auto !important; }
+
+.lo_top.h150 ~ .lo:not(.lo_top) { top: 150px; }
+.lo_bottom.h150 ~ .lo:not(.lo_bottom) { bottom: 150px; }
+.lo_left.w150 ~ .lo:not(.lo_left) { left: 150px; }
+.lo_right.w150 ~ .lo:not(.lo_right) { right: 150px; }
+
+
+.w200 { width: 200px; }
+.h200 { height: 200px; }
+
+.lo_top.h200 { bottom: auto !important; }
+.lo_bottom.h200 { top: auto !important; }
+.lo_left.w200 { right: auto !important; }
+.lo_right.w200 { left: auto !important; }
+
+.lo_top.h200 ~ .lo:not(.lo_top) { top: 200px; }
+.lo_bottom.h200 ~ .lo:not(.lo_bottom) { bottom: 200px; }
+.lo_left.w200 ~ .lo:not(.lo_left) { left: 200px; }
+.lo_right.w200 ~ .lo:not(.lo_right) { right: 200px; }
+
+
+
+.w300 { width: 300px; }
+.h300 { height: 300px; }
+
+.lo_top.h300 { bottom: auto !important; }
+.lo_bottom.h300 { top: auto !important; }
+.lo_left.w300 { right: auto !important; }
+.lo_right.w300 { left: auto !important; }
+
+.lo_top.h300 ~ .lo:not(.lo_top) { top: 300px; }
+.lo_bottom.h300 ~ .lo:not(.lo_bottom) { bottom: 300px; }
+.lo_left.w300 ~ .lo:not(.lo_left) { left: 300px; }
+.lo_right.w300 ~ .lo:not(.lo_right) { right: 300px; }
+
+
+.w600 { width: 600px; }
+.h600 { height: 600px; }
+
+.lo_top.h600 { bottom: auto !important; }
+.lo_bottom.h600 { top: auto !important; }
+.lo_left.w600 { right: auto !important; }
+.lo_right.w600 { left: auto !important; }
+
+.lo_top.h600 ~ .lo:not(.lo_top) { top: 600px; }
+.lo_bottom.h600 ~ .lo:not(.lo_bottom) { bottom: 600px; }
+.lo_left.w600 ~ .lo:not(.lo_left) { left: 600px; }
+.lo_right.w600 ~ .lo:not(.lo_right) { right: 600px; }
+
+
+.wp50 { width: 50%; }
+.hp50 { height: 50%; }
+
+.lo_top.hp50 { bottom: auto !important; }
+.lo_bottom.hp50 { top: auto !important; }
+.lo_left.wp50 { right: auto !important; }
+.lo_right.wp50 { left: auto !important; }
+
+.lo_top.hp50 ~ .lo:not(.lo_top) { top: 50%; }
+.lo_bottom.hp50 ~ .lo:not(.lo_bottom) { bottom: 50%; }
+.lo_left.wp50 ~ .lo:not(.lo_left) { left: 50%; }
+.lo_right.wp50 ~ .lo:not(.lo_right) { right: 50%; }
+
+.hp100 { width: 100%; }
+.wp100 { height: 100%; }
+
+.bbox { box-sizing: border-box }
+
+.pd1 { padding: 1px; }
+.pd2 { padding: 2px; }
+.pd5 { padding: 5px; }
+.pd10 { padding: 10px; }
+.pd15 { padding: 15px; }
+.pd20 { padding: 20px; }
+
+.z1 {
+ z-index: 1;
+}
+
+.z2 {
+ z-index: 2;
+}
+
+
+.cnt {
+ position:absolute;
+}
+
+:not(.loscroll):not(.lo_s) > .cnt { 
+ top: 0px;
+ bottom: 0px; 
+ left: 0px;
+ right: 0px;
+ 
+ overflow: hidden;
+}
+
+.iblk {
+ white-space: nowrap; 
+ font-size: 0px;
+}
+
+.iblk > div {
+ font-size: 12px;
+ display: inline-block;
+}
+
+
+

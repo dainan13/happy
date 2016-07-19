@@ -2,7 +2,7 @@ import sys
 
 import eqt
 import hqt
-import site_example
+import app_example
 
 if __name__ == '__main__' :
     
@@ -11,7 +11,7 @@ if __name__ == '__main__' :
     win = hqt.QHDialog()
     win.show()
 
-    win.resize(400,500)
+    win.resize(600,500)
     win.moveScreenCenter()
     
     win.openUrl("app://example.ewsgi/")

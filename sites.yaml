@@ -1,0 +1,18 @@
+
+# uwsgi的配置示例
+#
+# 详细配置查看 https://uwsgi-docs.readthedocs.io/en/latest/Configuration.html#yaml-files
+# uwsgi命令使用方法：
+#     启动：uwsgi -y sites.yaml:example
+#     停止：uwsgi --stop /var/wsgi/example.site.pid
+#
+
+example:
+  wsgi-file: site_example.py
+  socket: /var/wsgi/example.site.socket
+  pidfile: /var/wsgi/example.site.pid
+  daemonize: /var/wsgi/example.site.log
+
+
+
+

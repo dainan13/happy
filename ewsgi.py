@@ -218,10 +218,13 @@ class WsgiServer(object):
         
     def __call__( self, environ, start_response ):
         
-        resp = self.process(envirion)
+        resp = self.process(environ)
         start_response( *resp.headstruct() )
         
-        return [resp.body]
+        if type(resp.body) == bytes :
+            return [resp.body] 
+        
+        return resp.body
     
     def process( self, environ ):
         
@@ -336,7 +339,7 @@ class WsgiServer(object):
                 resp = work(**args)
 
         except :
-            print( sys.exc_info() )
+            #print( sys.exc_info() )
             return HttpInternalServerError( sys.exc_info() )
         
         if type(resp) == tuple :

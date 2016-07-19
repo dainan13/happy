@@ -1,13 +1,11 @@
 
-import ewsgi
+import hqt
 import exml
 
-class SiteExample( ewsgi.WsgiServer ):
+class SiteExample( hqt.QHSite ):
     
     def __init__( self ):
-        
         super().__init__()
-        
         return
         
     def url__( self ):
@@ -50,16 +48,3 @@ class SiteExample( ewsgi.WsgiServer ):
                 
         return b"<!DOCTYPE html>\n" + h.bytes()
         
-
-if __name__.startswith('uwsgi_file_'):
-    
-    application = SiteExample()
-
-elif __name__ == '__main__' :
-    
-    application = SiteExample()
-    
-    from wsgiref.simple_server import make_server
-    server = make_server( "127.0.0.1",18080, application)
-    server.serve_forever()
-    
