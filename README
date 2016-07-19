@@ -1,0 +1,13 @@
+
+requires :
+    
+    pyyaml
+    pymysql
+    pyqt
+    lxml
+    
+    for windows user download pages :
+        https://www.riverbankcomputing.com/software/pyqt/download5
+        http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
+        
+        

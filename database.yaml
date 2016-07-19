@@ -1,0 +1,18 @@
+
+connection:
+  retrys: 3
+
+# << Exmaple >>
+#
+#  <YAML FILE>
+#    my_database:
+#     host: 127.0.0.1
+#     user: your_user
+#     passwd: your_password
+#     db: the_database_you_want_to_use
+#  
+#  <CODE FILE>
+#    import edb
+#    edb.Database('my_database')
+#    edb("SELECT * FROM SOME_TABLE")
+
