@@ -1,9 +1,13 @@
 
 from eqt import *
 
-import ewsgi
+from PyQt5.QtWebChannel import *
 
+import json
+
+import ewsgi
 import urllib.parse
+
 
 class QHSiteManager( object ):
     
@@ -84,6 +88,9 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
     
     def requestStarted( self, request ):
         
+        p = request.parent()
+        p.__class__ = QWebEnginePage
+        print( p.parent(), self.parent() )
         print( '[QH] >', request.requestUrl().url() )
         
         netloc = request.requestUrl().host().lower().split('.')
@@ -105,24 +112,25 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
             return
             
         if len(netloc) == 3 :
-            siteobj, sitecls, _postfix = netloc
+            siteid, sitecls, _postfix = netloc
         else :
-            siteobj = 'new'
+            siteid = 'new'
             sitecls, _postfix = netloc
     
-        if siteobj == 'new' :
-            siteobj = QHSiteManager.instance().newSiteObject( sitecls )
+        if siteid == 'new' :
+            siteid = QHSiteManager.instance().newSiteObject( sitecls )
             url = request.requestUrl()
-            url.setHost('%s.%s.ewsgi' % (siteobj, sitecls) )
-            request.redirect( url )
+            url.setHost('%s.%s.ewsgi' % (siteid, sitecls) )
+            self.parent().setUrl( url )
+            #request.redirect( url ) #redirect会使page的URL不发生变更。
             return
         
-        site = QHSiteManager.instance().getSiteObject( siteobj )
+        siteobj = QHSiteManager.instance().getSiteObject( siteid )
         
         self.buffer = QBuffer()
         request.destroyed.connect( self.buffer.deleteLater )
         
-        resp = site.process( self.wsgiParams( request ) )
+        resp = siteobj.process( self.wsgiParams( request ) )
         print( '[QH] <', resp.status )
         self.wsgiReponseProcess( request, resp )
 
@@ -194,26 +202,100 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
         
         return
     
+# http://python.6.x6.nabble.com/Qt-WebChannel-JavaScript-API-td5170173.html
+
+class QHWebEnginePage(QWebEnginePage): 
     
+    APP_SCHEMA_HANDLER = b'app'
+    
+    def loadQWebChannelJS():
+        
+        qwebchannel_js = QFile(':/qtwebchannel/qwebchannel.js')
+        
+        if not qwebchannel_js.open(QIODevice.ReadOnly):
+            raise SystemExit( 
+                'Failed to load qwebchannel.js with error: %s' % 
+                qwebchannel_js.errorString())
+        
+        return bytes(qwebchannel_js.readAll()).decode('utf-8')
+    
+    QWEBCHANNEL_JS = loadQWebChannelJS()
+    loadQWebChannelJS = staticmethod(loadQWebChannelJS)
+    
+    INIT_JS = '''
+new QWebChannel(qt.webChannelTransport, function(channel) { 
+    channel.objects.bridge.print('Hello world!');
+    alert( channel.objects.bridge.sitemethod("test", "[1,2]") );
+});
+'''
+
+    def __init__( self ):
+        
+        super().__init__()
+        
+        self.app_url_scheme_handler = AppUrlSchemeHandler( self )
+        
+        self.profile().installUrlSchemeHandler( self.APP_SCHEMA_HANDLER, self.app_url_scheme_handler )
+        self.profile().scripts().insert( self.make_script() ) 
+        
+        self.webchannel = QWebChannel(self) 
+        self.setWebChannel(self.webchannel)
+        
+        self.webchannel.registerObject( 'bridge', self )
+        
+        return
+    
+    def make_script( self ):
+        script = QWebEngineScript()
+        script.setSourceCode(self.QWEBCHANNEL_JS + self.INIT_JS) 
+        script.setName('HQChannel') 
+        script.setWorldId(QWebEngineScript.MainWorld) 
+        script.setInjectionPoint(QWebEngineScript.DocumentReady) 
+        script.setRunsOnSubFrames(True) 
+        return script 
+        
+    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
+        
+        try:
+            print('%s:%s: %s' % (source_id, linenumber, msg)) 
+        except OSError:
+            pass
+
+    @pyqtSlot(str) 
+    def print(self, text): 
+        print( 'From JS:', text )
+    
+    @pyqtSlot(str, str, result=str)
+    def sitemethod(self, methodname, args):
+        siteid = self.requestedUrl().host().split('.')[0]
+        siteobj = QHSiteManager.instance().getSiteObject( siteid )
+        method = getattr( siteobj, 'js_'+methodname )
+        return json.dumps( method( *json.loads(args) ) )
+
 # http://stackoverflow.com/questions/38071731/print-out-all-the-requested-urls-during-loading-a-web-page
 # http://stackoverflow.com/questions/37658772/pyqt5-6-interceptrequest-doesnt-work
 # http://stackoverflow.com/questions/33933958/qt-5-6-alpha-qtwebengine-how-work-with-qwebengineurlrequestjob
 class QHDialog(QEDialog):
     
-    APP_SCHEMA_HANDLER = b'app'
-    app_url_scheme_handler = AppUrlSchemeHandler()
+    # APP_SCHEMA_HANDLER = b'app'
+    # app_url_scheme_handler = AppUrlSchemeHandler()
     
     def __init__( self, parent=None, flags=None, modal=None ):
 
         super().__init__( parent, flags, modal )
         
-        profile = QWebEngineProfile.defaultProfile()
-        installed = profile.urlSchemeHandler( self.APP_SCHEMA_HANDLER )
-        if not installed :
-            profile.installUrlSchemeHandler( self.APP_SCHEMA_HANDLER, self.app_url_scheme_handler )
+        # profile = QWebEngineProfile.defaultProfile()
+        # installed = profile.urlSchemeHandler( self.APP_SCHEMA_HANDLER )
+        # if not installed :
+        #     profile.installUrlSchemeHandler( self.APP_SCHEMA_HANDLER, self.app_url_scheme_handler )
+        
+        self.page = QHWebEnginePage()
         
         self.webview = QEWebView( self )
         self.webview.lower() # 在最底层显示
+        
+        self.webview.setPage( self.page )
+        
         self.addWidget( self.webview, QELa_Align(0, 0, 0, 0, 1, 1, 0, 0) )
         
     @pyqtSlot( str )
@@ -223,6 +305,16 @@ class QHDialog(QEDialog):
 
         return
     
+#qwebchannel_js = QFile(':/qtwebchannel/qwebchannel.js') 
+#if not qwebchannel_js.open(QIODevice.ReadOnly): 
+#    raise SystemExit( 
+#        'Failed to load qwebchannel.js with error: %s' % 
+#        qwebchannel_js.errorString()) 
+#qwebchannel_js = bytes(qwebchannel_js.readAll()).decode('utf-8') 
+#
+#import json
+#print( json.dumps(qwebchannel_js) )
+
 if __name__ == '__main__' :
     
     #--remote-debugging-port=8888
