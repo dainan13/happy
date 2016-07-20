@@ -1,7 +1,6 @@
 
 import os
 import os.path
-import yaml
 import time
 import itertools
 
@@ -169,7 +168,10 @@ class Database(object):
     def loadconfig( cls, filename="database.yaml" ):
         
         if not os.path.exists( filename ) :
-            return {}
+            cls.conf = {}
+            return 
+        
+        import yaml
         
         with open( filename, 'r') as fp :
             conf = yaml.load(fp)

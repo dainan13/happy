@@ -11,6 +11,8 @@ class SiteExample( ewsgi.WsgiServer ):
         
         super(SiteExample, self).__init__()
         
+        print( self.urlmethods )
+        
         return
         
     def url__( self ):
@@ -68,8 +70,18 @@ class SiteExample( ewsgi.WsgiServer ):
     def url__test500( self ):
         return self.HttpInternalServerError()
     
+    @ewsgi.HttpOK.respAs('json')
+    def url__jsonresp( self, a=1, b=2, **kwargs ):
+        
+        if a == b :
+            return ewsgi.HttpNotFound()
+        
+        return {'a':a, 'b':b }
     
-    
+    @ewsgi.WsgiServer.mapURL('/path/page')
+    @ewsgi.HttpOK.respAs('json')
+    def a_method_server_url( self, a, b, **kwargs ):
+        return {'a':a, 'b':b }
     
 if __name__.startswith('uwsgi_file_'):
     

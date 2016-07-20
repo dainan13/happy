@@ -99,7 +99,35 @@ class HttpResponse(object):
         
     def headstruct( self ):
         return ( '%s %s' % (self.status, self.reason), self.headers, self.exc_info )
-
+    
+    @classmethod
+    def respAs( cls, mode ):
+        return getattr( cls, 'resp_'+mode )
+    
+    @classmethod
+    def resp_url( cls, url ):
+        
+        def ewsgi_response_parser( *args, **kwargs ):
+            r = func( *args, **kwargs )
+            if isinstance( r, HttpResponse ):
+                return r
+            return cls( redirect_url = str(r) )
+        
+        ewsgi_response_parser.__name__ = func.__name__
+        return ewsgi_response_parser
+    
+    @classmethod
+    def resp_json( cls, func ):
+        
+        def ewsgi_response_parser( *args, **kwargs ):
+            r = func( *args, **kwargs )
+            if isinstance( r, HttpResponse ):
+                return r
+            return cls( body = json.dumps(r) )
+        
+        ewsgi_response_parser.__name__ = func.__name__
+        return ewsgi_response_parser
+    
 
 class HttpOK(HttpResponse):
     
@@ -159,8 +187,6 @@ class WsgiStaticServer( object ):
         start_response( *self.resp.headstruct() )
         return self.resp.body
 
-import yaml
-
 try :
     import uwsgi
 except :
@@ -174,8 +200,6 @@ def readconfig( filename=None ):
     if not os.path.exists( filename ) :
         print('[!] wsgi no load , %s file not found ---------------------------' % filename )
         return {}
-    #else :
-    #    print('[ ] wsgi %s file loaded.' % filename)
     
     with open( filename, 'r') as fp :
         conf = yaml.load(fp)
@@ -190,11 +214,6 @@ def readconfig( filename=None ):
         
     return conf
 
-def readvars( conf ):
-    link_ks, link_vs = tuple( zip(* conf.get('var', {}).items() ) ) or ( [], [] )
-    #print( link_ks, link_vs )
-    return namedtuple('EWSGIVARS', link_ks)(*link_vs)
-
 class WsgiServer(object):
     
     HttpResponse = HttpResponse
@@ -206,9 +225,51 @@ class WsgiServer(object):
     HttpForbidden = HttpForbidden
     HttpXRedirect = HttpXRedirect
     
-    wsgiconf = readconfig()
-    var = readvars(wsgiconf)
-
+    wsgiconf = {}
+    
+    @classmethod
+    def loadconfig( cls, filename=None ):
+        
+        filename = (uwsgi.opt.get('ewsgi', b"wsgi").decode('utf-8')+'.yaml') if filename is None else filename
+        
+        if not os.path.exists( filename ) :
+            print('[!] wsgi no load , %s file not found ---------------------------' % filename )
+            cls.wsgiconf = {}
+            return
+        
+        import yaml
+        
+        with open( filename, 'r' ) as fp :
+            conf = yaml.load(fp)
+            
+        if 'handlers' in conf :
+            
+            conf['handlers']  = [ h for h in conf['handlers'] if type( h.get('url',None) ) == str and type( h.get('static_dir',None) ) == str ]
+            
+            for h in conf['handlers'] :
+                if not h['url'].endswith('/') :
+                    h['url'] = h['url']+'/'
+        
+        cls.wsgiconf = conf
+        
+        return
+    
+    urlmethods = {}
+    
+    @classmethod
+    def mapURL( cls, url ):
+        
+        def registMethod( func ):
+            
+            locals = sys._getframe(1).f_locals
+            locals.setdefault('urlmethods', {})
+            
+            locals['urlmethods'][url] = func.__name__
+            
+            return func
+        
+        return registMethod
+    
     def __init__( self ):
         
         self.more_entry = []
@@ -263,7 +324,11 @@ class WsgiServer(object):
         self._local.session = None
         
         path = environ['PATH_INFO']
-        w = getattr( self, 'url'+path.replace('/','__'), None )
+        print( self.urlmethods, path )
+        w = self.urlmethods.get( path, None )
+        w = getattr( self, w, None ) if w else None
+        print(w)
+        w = getattr( self, 'url'+path.replace('/','__'), None ) if w is None else w
         
         if w :
             
@@ -383,5 +448,5 @@ class WsgiServer(object):
     def http_notfound( self ):
         return HttpNotFound()
     
-    
+WsgiServer.loadconfig()
     
