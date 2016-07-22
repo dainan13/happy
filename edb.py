@@ -157,7 +157,7 @@ class PerspectiveMatrixCursor(PerspectiveMatrixCursorMixin, pymysql.cursors.Curs
 class Database(object):
     
     conf = {}
-    self.default_dbargs = {
+    default_dbargs = {
         'charset' : 'utf8mb4',
         'cursorclass' : pymysql.cursors.DictCursor,
         'connect_timeout' : 3.0,
@@ -180,10 +180,14 @@ class Database(object):
         
         return
         
-    def __init__( self, database, **kwargs ):
+    def __init__( self, database=None, **kwargs ):
+        
+        if database is None and 'host' not in kwargs:
+            raise Exception('argument error.')
         
         dbargs = self.default_dbargs.copy()
-        dbargs.update( self.conf[self._database] )
+        if database != None :
+            dbargs.update( self.conf[database] )
         dbargs.update( kwargs )
         
         self._dbargs = dbargs
