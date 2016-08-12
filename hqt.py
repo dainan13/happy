@@ -82,15 +82,10 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
     
     def __init__( self, parent=None ):
         
-        self.buffers = {}
-        
         return super(AppUrlSchemeHandler, self).__init__( parent )
     
     def requestStarted( self, request ):
         
-        p = request.parent()
-        p.__class__ = QWebEnginePage
-        print( p.parent(), self.parent() )
         print( '[QH] >', request.requestUrl().url() )
         
         netloc = request.requestUrl().host().lower().split('.')
@@ -130,9 +125,22 @@ class AppUrlSchemeHandler(QWebEngineUrlSchemeHandler):
         self.buffer = QBuffer()
         request.destroyed.connect( self.buffer.deleteLater )
         
-        resp = siteobj.process( self.wsgiParams( request ) )
-        print( '[QH] <', resp.status )
-        self.wsgiReponseProcess( request, resp )
+        if request.requestUrl().path() == '/_js_return' :
+            
+            r = self.parent().result
+            
+            contentType = b"json/application"
+            
+            self.buffer.open(QIODevice.WriteOnly)
+            self.buffer.write( r.encode('utf-8') )
+            self.buffer.close()
+        
+            request.reply( contentType, self.buffer )
+            
+        else :
+            resp = siteobj.process( self.wsgiParams( request ) )
+            print( '[QH] <', resp.status )
+            self.wsgiReponseProcess( request, resp )
 
         return
     
@@ -223,9 +231,27 @@ class QHWebEnginePage(QWebEnginePage):
     loadQWebChannelJS = staticmethod(loadQWebChannelJS)
     
     INIT_JS = '''
-new QWebChannel(qt.webChannelTransport, function(channel) { 
+new QWebChannel(qt.webChannelTransport, function(channel) {
+
+    channel.objects.bridge.returnValue.connect(function(message) {
+        alert("Got signal: " + message);
+    });
+    
+    channel.objects.bridge.sitemethod("test", "[1,2]", function(ret) {
+        alert("Got return value: " + ret);
+    });
+    
+    var request = new XMLHttpRequest();
+    request.open('GET', '/_js_return', false); 
+    request.send(null);
+    alert(request.responseText);
+    
     channel.objects.bridge.print('Hello world!');
-    alert( channel.objects.bridge.sitemethod("test", "[1,2]") );
+    
+    
+    window.site = channel.objects.bridge;
+    
+    alert('HAHA');
 });
 '''
 
@@ -242,6 +268,8 @@ new QWebChannel(qt.webChannelTransport, function(channel) {
         self.setWebChannel(self.webchannel)
         
         self.webchannel.registerObject( 'bridge', self )
+        
+        self.result = None
         
         return
     
@@ -262,7 +290,7 @@ new QWebChannel(qt.webChannelTransport, function(channel) {
             pass
 
     @pyqtSlot(str) 
-    def print(self, text): 
+    def print(self, text):
         print( 'From JS:', text )
     
     @pyqtSlot(str, str, result=str)
@@ -270,8 +298,22 @@ new QWebChannel(qt.webChannelTransport, function(channel) {
         siteid = self.requestedUrl().host().split('.')[0]
         siteobj = QHSiteManager.instance().getSiteObject( siteid )
         method = getattr( siteobj, 'js_'+methodname )
-        return json.dumps( method( *json.loads(args) ) )
+        import time
+        for i in range(2):
+            time.sleep(1)
+            print('.')
+        r = json.dumps( method( *json.loads(args) ) )
+        self.runJavaScript('alert("aaa")')
+        #self.returnValue.emit( r )
+        self.result = r
+        return r
+    
+    returnValue = pyqtSignal(str)
 
+#http://blog.csdn.net/liuyez123/article/details/50532091
+#http://download.csdn.net/download/liuyez123/9402132
+#https://www.kdab.com/qt-webchannel-bridging-gap-cqml-web/
+# http://stackoverflow.com/questions/33704128/undefined-properties-and-return-types-when-using-qwebchannel
 # http://stackoverflow.com/questions/38071731/print-out-all-the-requested-urls-during-loading-a-web-page
 # http://stackoverflow.com/questions/37658772/pyqt5-6-interceptrequest-doesnt-work
 # http://stackoverflow.com/questions/33933958/qt-5-6-alpha-qtwebengine-how-work-with-qwebengineurlrequestjob
@@ -304,16 +346,6 @@ class QHDialog(QEDialog):
         self.webview.setUrl(QUrl(url))
 
         return
-    
-#qwebchannel_js = QFile(':/qtwebchannel/qwebchannel.js') 
-#if not qwebchannel_js.open(QIODevice.ReadOnly): 
-#    raise SystemExit( 
-#        'Failed to load qwebchannel.js with error: %s' % 
-#        qwebchannel_js.errorString()) 
-#qwebchannel_js = bytes(qwebchannel_js.readAll()).decode('utf-8') 
-#
-#import json
-#print( json.dumps(qwebchannel_js) )
 
 if __name__ == '__main__' :
     

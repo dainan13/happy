@@ -48,3 +48,5 @@ class SiteExample( hqt.QHSite ):
                 
         return b"<!DOCTYPE html>\n" + h.bytes()
         
+    def js_test( self, a, b ):
+        return a+b

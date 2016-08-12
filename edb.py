@@ -3,6 +3,7 @@ import os
 import os.path
 import time
 import itertools
+import re
 
 from collections import defaultdict
 
@@ -11,6 +12,10 @@ import pymysql.cursors
 
 from collections import OrderedDict
 pymysql.cursors.DictCursorMixin.dict_type = OrderedDict
+
+
+RE_INSERT = re.compile(r'(\s*INSERT\s.+\sVALUES\s+).+\Z', re.IGNORECASE)
+
 
 class PerspectiveMatrix( object ):
     
@@ -223,7 +228,7 @@ class Database(object):
                 
                 with self.conn.cursor( cursor ) as cursor:
                     cursor.execute( sql, args )
-                    if pymysql.cursors.RE_INSERT_VALUES.match( sql ):
+                    if RE_INSERT.match( sql ):
                         return cursor.lastrowid
                     return cursor.fetchall( **fetch_kwargs )
             
